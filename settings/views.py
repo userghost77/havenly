@@ -2,7 +2,6 @@ from django.shortcuts import render
 from property.models import *
 from django.db.models import Q
 from django.db.models import Count
-from blog.models import *
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -17,7 +16,7 @@ def home(request):
     hotels_list = Property.objects.filter(category__name = 'Hotel')[:4]
     places_list = Property.objects.filter(category__name = 'Places')[:4]
     
-    recent_posts = Post.objects.all()[:4]
+    # recent_posts = Post.objects.all()[:4]
     
     users_count = User.objects.all().count()
     places_count = Property.objects.filter(category__name = 'Places').count()
@@ -30,7 +29,7 @@ def home(request):
         'resturant_list':resturant_list,
         'hotels_list':hotels_list,
         'places_list' :places_list,
-        'recent_post':recent_posts,
+        # 'recent_post':recent_posts,
         'users_count':users_count,
         'places_count':places_count,
         'hotels_count':hotels_count,

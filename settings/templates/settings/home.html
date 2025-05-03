@@ -191,7 +191,7 @@
     	</div>
     </section>
 
-    <section class="ftco-section ftco-counter img" id="section-counter" style="background-image: url(images/bg_1.jpg);">
+    <!-- <section class="ftco-section ftco-counter img" id="section-counter" style="background-image: url(images/bg_1.jpg);">
     	<div class="container">
     		<div class="row justify-content-center mb-5 pb-3">
     			<div class="col-md-7 text-center heading-section heading-section-white ftco-animate">
@@ -238,7 +238,7 @@
     			</div>
     		</div>
     	</div>
-    </section>
+    </section> -->
 
 
     <section class="ftco-section">
@@ -370,13 +370,13 @@
     </section>
 
     <section class="ftco-section">
-    	<div class="container">
+    	<!-- <div class="container">
     		<div class="row justify-content-start mb-5 pb-3">
     			<div class="col-md-7 heading-section ftco-animate">
     				<span class="subheading">Special Offers</span>
     				<h2 class="mb-4"><strong>Popular</strong> Restaurants</h2>
     			</div>
-    		</div>
+    		</div> -->
     		<div class="row">
     			{% for restaurant in resturant_list %}
 
@@ -413,34 +413,7 @@
     	</div>
     </section>
 
-    <section class="ftco-section bg-light">
-    	<div class="container">
-    		<div class="row justify-content-start mb-5 pb-3">
-    			<div class="col-md-7 heading-section ftco-animate">
-    				<span class="subheading">Recent Blog</span>
-    				<h2><strong>Tips</strong> &amp; Articles</h2>
-    			</div>
-    		</div>
-    		<div class="row d-flex">
-    			{% for post in recent_post %}
-    			<div class="col-md-3 d-flex ftco-animate">
-    				<div class="blog-entry align-self-stretch">
-    					<a href="blog-single.html" class="block-20" style="background-image: url({{post.image.url}});">
-    					</a>
-    					<div class="text p-4 d-block">
-    						<span class="tag">Tips, Travel</span>
-    						<h3 class="heading mt-3"><a href="#">{{post}}</a></h3>
-    						<div class="meta mb-3">
-    							<div><a href="#">{{ post.created_at | date:'F j, Y'}}</a></div>
-    							<div><a href="#">{{post.author}}</a></div>
-    						</div>
-    					</div>
-    				</div>
-    			</div>
-    			{% endfor %}
-    		</div>
-    	</div>
-    </section>
+   
 
     <section class="ftco-section-parallax">
     	<div class="parallax-img d-flex align-items-center">
