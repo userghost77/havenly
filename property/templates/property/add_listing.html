@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block body %}
+<div class="hero-wrap js-fullheight" style="background-image: url('{% static 'images/bg_2.jpg' %}');">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row no-gutters slider-text js-fullheight align-items-center justify-content-center" data-scrollax-parent="true">
+      <div class="col-md-9 ftco-animate text-center" data-scrollax=" properties: { translateY: '70%' }">
+        <p class="breadcrumbs" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">
+          <span class="mr-2"><a href="{% url 'settings:home' %}">Home</a></span> 
+          <span>Add Listing</span>
+        </p>
+        <h1 class="mb-3 bread" data-scrollax="properties: { translateY: '30%', opacity: 1.6 }">Add Your Property</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="ftco-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card shadow">
+          <div class="card-body">
+            <h3 class="mb-4">Property Information</h3>
+            
+            <form method="post" enctype="multipart/form-data" action="{% url 'property:add_listing_submit' %}">
+              {% csrf_token %}
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="name">Property Name</label>
+                    <input type="text" name="name" id="name" class="form-control" placeholder="Enter property name" required>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="price">Price (per night)</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                      </div>
+                      <input type="number" name="price" id="price" class="form-control" placeholder="Enter price" required>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category" id="category" class="form-control" required>
+                      <option value="">Select a category</option>
+                      {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" name="location" id="location" class="form-control" placeholder="Enter location" required>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description" id="description" rows="5" class="form-control" placeholder="Describe your property" required></textarea>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="beds">Number of Beds</label>
+                    <input type="number" name="beds" id="beds" class="form-control" min="1" value="1" required>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="baths">Number of Baths</label>
+                    <input type="number" name="baths" id="baths" class="form-control" min="1" value="1" required>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="area">Area (sq ft)</label>
+                    <input type="number" name="area" id="area" class="form-control" min="1" required>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label for="max_guests">Max Guests</label>
+                    <input type="number" name="max_guests" id="max_guests" class="form-control" min="1" value="2" required>
+                  </div>
+                </div>
+              </div>
+              
+              <h4 class="mt-4 mb-3">Amenities</h4>
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="wifi" name="amenities" value="wifi">
+                    <label class="custom-control-label" for="wifi">WiFi</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="parking" name="amenities" value="parking">
+                    <label class="custom-control-label" for="parking">Parking</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="pool" name="amenities" value="pool">
+                    <label class="custom-control-label" for="pool">Swimming Pool</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="ac" name="amenities" value="ac">
+                    <label class="custom-control-label" for="ac">Air Conditioning</label>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row mt-2">
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="kitchen" name="amenities" value="kitchen">
+                    <label class="custom-control-label" for="kitchen">Kitchen</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="tv" name="amenities" value="tv">
+                    <label class="custom-control-label" for="tv">TV</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="balcony" name="amenities" value="balcony">
+                    <label class="custom-control-label" for="balcony">Balcony</label>
+                  </div>
+                </div>
+                
+                <div class="col-md-3">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="gym" name="amenities" value="gym">
+                    <label class="custom-control-label" for="gym">Gym</label>
+                  </div>
+                </div>
+              </div>
+              
+              <h4 class="mt-4 mb-3">Property Photos</h4>
+              <div class="form-group">
+                <label for="main_image">Main Image</label>
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="main_image" name="main_image" accept="image/*" required>
+                  <label class="custom-file-label" for="main_image">Choose file</label>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="additional_images">Additional Images (up to 5)</label>
+                <div class="custom-file">
+                  <input type="file" class="custom-file-input" id="additional_images" name="additional_images" accept="image/*" multiple>
+                  <label class="custom-file-label" for="additional_images">Choose files</label>
+                </div>
+                <small class="form-text text-muted">You can select multiple files at once.</small>
+              </div>
+              
+              <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary py-3 px-5">Submit Listing</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Script to update file input labels with selected filename
+  document.addEventListener('DOMContentLoaded', function() {
+    // For main image
+    document.getElementById('main_image').addEventListener('change', function(e) {
+      var fileName = e.target.files[0].name;
+      var label = document.querySelector('label[for="main_image"]');
+      label.textContent = fileName;
+    });
+    
+    // For additional images
+    document.getElementById('additional_images').addEventListener('change', function(e) {
+      var fileCount = e.target.files.length;
+      var label = document.querySelector('label[for="additional_images"]');
+      if (fileCount > 1) {
+        label.textContent = fileCount + ' files selected';
+      } else if (fileCount === 1) {
+        label.textContent = e.target.files[0].name;
+      }
+    });
+  });
+</script>
+{% endblock %}

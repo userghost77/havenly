@@ -37,16 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    ##my apps 
+    # Your apps
     'accounts',
-    'settings',
+    'settings',  # Make sure this is included
     'property',
     'about',
+    'chatbot',  # Add this if you have a separate chatbot app
     "taggit",
     'bootstrap4',
     'django_summernote',
     'django_filters',
-
 ]
 
 MIDDLEWARE = [

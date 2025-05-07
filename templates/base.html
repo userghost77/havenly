@@ -45,17 +45,12 @@
           <li class="nav-item"><a href="/" class="nav-link">Home</a></li>
           <li class="nav-item"><a href="{% url 'about:about' %}" class="nav-link">About</a></li>
           <li class="nav-item active"><a href="{% url 'property:property_list' %}" class="nav-link">Properties</a></li>
-          <li class="nav-item"><a href="{% url 'home:contact_us' %}" class="nav-link">Contact</a></li>
-          <li class="nav-item cta"><a href="contact.html" class="nav-link"><span>Add listing</span></a></li>
+          <li class="nav-item"><a href="{% url 'settings:contact_us' %}" class="nav-link">Contact</a></li>
+          <li class="nav-item cta"><a href="{% url 'property:add_listing' %}" class="nav-link"><span>Add listing</span></a></li>
           
           {% if request.user.is_authenticated %}
             <li class="nav-item cta"><a href="{% url 'accounts:profile' %}" class="nav-link">Profile</a></li>
-
-          {% else %}
-            <li class="nav-item cta"><a href="{% url 'login' %}" class="nav-link"><span>Login</span></a></li>
-            <li class="nav-item cta"><a href="{% url 'accounts:signup' %}" class="nav-link"><span>Signup</span></a></li>
           {% endif %}
-
         </ul>
       </div>
     </div>
@@ -66,11 +61,237 @@
 
   {% endblock body %}
 
+  <!-- Add this right before the closing body tag, after your existing content -->
+  {% if request.user.is_authenticated %}
+  <!-- Chat Toggle Button -->
+  <button class="chat-button" id="chatToggleBtn" onclick="toggleChat()">💬</button>
 
+  <!-- Chat Popup -->
+  <div class="chat-popup" id="chatPopup">
+    <div class="chat-header">
+      Chat
+      <span class="close-btn" onclick="toggleChat()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+    </div>
 
+    <div class="chat-body">
+      <ul class="messages-list" id="messagesList">
+        <!-- Messages will be loaded here -->
+      </ul>
+    </div>
 
+    <form method="post" action="{% url 'chatbot' %}" class="message-form" id="chat-form">
+      {% csrf_token %}
+      <input type="text" name="message" class="message-input" id="message-input" placeholder="Type your message..." autocomplete="off">
+      <button type="submit" class="btn-send">Send</button>
+    </form>
+  </div>
 
+  <style>
+    .chat-popup {
+      position: fixed;
+      bottom: 80px;
+      right: 30px;
+      width: 350px;
+      max-height: 600px;
+      background-color: #f5f6ff;
+      border-radius: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 9999;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      display: none;
+    }
 
+    .chat-popup.open {
+      transform: translateY(0);
+      opacity: 1;
+      display: flex;
+    }
+    
+    .chat-header {
+      background-color: #4c44cf;
+      color: white;
+      padding: 12px 16px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+    }
+    
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    
+    .messages-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .message {
+      margin-bottom: 15px;
+    }
+    
+    .message-form {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #e0e0e0;
+    }
+    
+    .message-input {
+      flex: 1;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-right: 10px;
+    }
+    
+    .btn-send {
+      background-color: #4c44cf;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    .chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 30px;
+      background-color: #4c44cf;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 9999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .chat-button:hover {
+      transform: scale(1.1);
+    }
+  </style>
+
+  <script>
+    function toggleChat() {
+      const popup = document.getElementById("chatPopup");
+      if (popup) {
+        popup.classList.toggle('open');
+        console.log("Chat toggled");
+      } else {
+        console.error("Chat popup element not found");
+      }
+    }
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatForm = document.getElementById('chat-form');
+      const messageInput = document.getElementById('message-input');
+      const messagesList = document.getElementById('messagesList');
+
+      if (chatForm) {
+        chatForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          const message = messageInput.value.trim();
+          if (!message) return;
+
+          const userMessage = document.createElement('li');
+          userMessage.classList.add('message', 'sent');
+          userMessage.innerHTML = `<div class="message-text"><strong>You:</strong> ${message}</div>`;
+          messagesList.appendChild(userMessage);
+          messageInput.value = '';
+          
+          // Add a loading message
+          const loadingMessage = document.createElement('li');
+          loadingMessage.classList.add('message', 'received', 'loading');
+          loadingMessage.innerHTML = `<div class="message-text"><strong>AI:</strong> Thinking...</div>`;
+          messagesList.appendChild(loadingMessage);
+          messagesList.scrollTop = messagesList.scrollHeight;
+
+          fetch("{% url 'chatbot' %}", {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: new URLSearchParams({ message: message })
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Remove loading message
+            messagesList.removeChild(loadingMessage);
+            
+            // Add the actual response
+            const botMessage = document.createElement('li');
+            botMessage.classList.add('message', 'received');
+            
+            // Check if we have a response or an error
+            if (data.response) {
+              botMessage.innerHTML = `<div class="message-text"><strong>AI:</strong> ${data.response}</div>`;
+            } else if (data.error) {
+              botMessage.innerHTML = `<div class="message-text"><strong>AI:</strong> ${data.error}</div>`;
+            } else {
+              botMessage.innerHTML = `<div class="message-text"><strong>AI:</strong> Sorry, I couldn't process your request.</div>`;
+            }
+            
+            messagesList.appendChild(botMessage);
+            messagesList.scrollTop = messagesList.scrollHeight;
+            
+            console.log("Response received:", data);
+          })
+          .catch(error => {
+            // Remove loading message
+            messagesList.removeChild(loadingMessage);
+            
+            // Add error message
+            const errorMessage = document.createElement('li');
+            errorMessage.classList.add('message', 'received', 'error');
+            errorMessage.innerHTML = `<div class="message-text"><strong>AI:</strong> Sorry, there was an error: ${error.message}</div>`;
+            messagesList.appendChild(errorMessage);
+            messagesList.scrollTop = messagesList.scrollHeight;
+            
+            console.error('Error:', error);
+          });
+        });
+      }
+    });
+  </script>
+  {% endif %}
 
   <footer class="ftco-footer ftco-bg-dark ftco-section">
     <div class="container">
@@ -79,11 +300,11 @@
           <div class="ftco-footer-widget mb-4">
             <h2 class="ftco-heading-2">Havenly</h2>
             <p>{{myfooter.description}}</p>
-            <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
+            <!-- <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
               <li class="ftco-animate"><a href="{{myfooter.twitter_link}}"><span class="icon-twitter"></span></a></li>
               <li class="ftco-animate"><a href="{{myfooter.fb_link}}"><span class="icon-facebook"></span></a></li>
               <li class="ftco-animate"><a href="{{myfooter.instagram_link}}"><span class="icon-instagram"></span></a></li>
-            </ul>
+            </ul> -->
           </div>
         </div>
         <div class="col-md">
@@ -107,7 +328,7 @@
               <li><a href="#" class="py-2 d-block">Payment Option</a></li>
               <li><a href="#" class="py-2 d-block">Booking Tips</a></li>
               <li><a href="#" class="py-2 d-block">How it works</a></li>
-              <li><a href="#" class="py-2 d-block">Contact Us</a></li>
+              <li><a href="{% url 'settings:contact_us' %}" class="py-2 d-block">Contact Us</a></li>
             </ul>
           </div>
         </div>

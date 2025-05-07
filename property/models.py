@@ -32,14 +32,13 @@ class Property(models.Model):
        
  
 class PropertyImages(models.Model):
-    property = models.ForeignKey(Property, related_name='property_image', on_delete=models.CASCADE)
+    property = models.ForeignKey('Property', related_name='property_image', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='propertyimages/')
-    def __str__(self):
-        return str(self.property)
-
- 
     
-        
+    def __str__(self):
+        return f"Image for {self.property.name}"
+
+
 
 class Place(models.Model):
     name = models.CharField(max_length=50)

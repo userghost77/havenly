@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+
+{% block styles %}
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .chat-popup {
+    position: fixed;
+    bottom: 80px;
+    right: 30px;
+    width: 350px;
+    height: 600px;
+    background-color: #fff8f5;
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9999;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                opacity 0.3s ease;
+  }
+
+  .chat-popup.open {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .chat-header {
+    background-color: #f85959;
+    color: white;
+    padding: 14px 18px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .close-btn {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .close-btn:hover {
+    transform: rotate(90deg);
+  }
+
+  .chat-body {
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: #fff8f5;
+    scroll-behavior: smooth;
+  }
+
+  .messages-list {
+    padding: 0;
+    list-style: none;
+  }
+
+  .message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+  }
+
+  .message.typing .message-text {
+    animation: pulse 1.5s infinite;
+  }
+
+  .message-text {
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 85%;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  .sent {
+    align-items: flex-end;
+  }
+
+  .received {
+    align-items: flex-start;
+  }
+
+  .sent .message-text {
+    background-color: #f85959;
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .received .message-text {
+    background-color: #ffffff;
+    color: #333;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .message-form {
+    display: flex;
+    padding: 12px 15px;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+  }
+
+  .message-input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 24px;
+    border: 1px solid #e0e0e0;
+    margin-right: 10px;
+    font-size: 14px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .message-input:focus {
+    outline: none;
+    border-color: #f85959;
+    box-shadow: 0 0 0 2px rgba(248, 89, 89, 0.2);
+  }
+
+  .btn-send {
+    background-color: #f85959;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+
+  .btn-send:hover {
+    background-color: #e64545;
+    transform: scale(1.05);
+  }
+
+  .btn-send:active {
+    transform: scale(0.95);
+  }
+
+  .chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    background-color: #f85959;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(248, 89, 89, 0.4);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-button:hover {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 6px 20px rgba(248, 89, 89, 0.5);
+  }
+
+  .chat-button svg {
+    width: 28px;
+    height: 28px;
+    fill: white;
+  }
+
+  /* Typing indicator */
+  .typing-indicator {
+    display: flex;
+    padding: 8px 12px;
+    background: #fff;
+    border-radius: 18px;
+    width: fit-content;
+  }
+
+  .typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background: #f85959;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+    opacity: 0.6;
+  }
+
+  .typing-indicator span:nth-child(1) {
+    animation: bounce 1s infinite 0.1s;
+  }
+  .typing-indicator span:nth-child(2) {
+    animation: bounce 1s infinite 0.3s;
+  }
+  .typing-indicator span:nth-child(3) {
+    animation: bounce 1s infinite 0.5s;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Chat Popup -->
+<div class="chat-popup" id="chatPopup">
+  <div class="chat-header">
+    <span>Chat with Us</span>
+    <span class="close-btn" onclick="toggleChat()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 6L6 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M6 6L18 18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </span>
+  </div>
+
+  <div class="chat-body">
+    <ul class="messages-list" id="messagesList">
+      <li class="message received">
+        <div class="message-text">Hi there! 👋 How can I help you today?</div>
+      </li>
+      {% for chat in chats %}
+        <li class="message sent">
+          <div class="message-text">{{ chat.message }}</div>
+        </li>
+        <li class="message received">
+          <div class="message-text">{{ chat.response }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <form method="post" action="{% url 'chatbot' %}" class="message-form" id="chat-form">
+    {% csrf_token %}
+    <input type="text" name="message" class="message-input" id="message-input" placeholder="Type your message..." autocomplete="off">
+    <button type="submit" class="btn-send">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </form>
+</div>
+
+<!-- Chat Toggle Button -->
+<button class="chat-button" id="chatButton" onclick="toggleChat()">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0035 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.6056 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47089C20.0052 6.94699 20.885 8.91568 21 11V11.5Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<script>
+  const chatPopup = document.getElementById('chatPopup');
+  const chatButton = document.getElementById('chatButton');
+  const chatForm = document.getElementById('chat-form');
+  const messageInput = document.getElementById('message-input');
+  const messagesList = document.getElementById('messagesList');
+
+  // Function to toggle chat visibility with animation
+  function toggleChat() {
+    chatPopup.classList.toggle('open');
+    
+    // If opening the chat, focus on the input field
+    if (chatPopup.classList.contains('open')) {
+      setTimeout(() => {
+        messageInput.focus();
+        // Scroll to bottom of messages
+        messagesList.scrollTop = messagesList.scrollHeight;
+      }, 300);
+    }
+  }
+
+  // Function to get CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // Handle form submission
+  chatForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    // Add user message to chat
+    const userMessage = document.createElement('li');
+    userMessage.classList.add('message', 'sent');
+    userMessage.innerHTML = `<div class="message-text">${message}</div>`;
+    messagesList.appendChild(userMessage);
+    messageInput.value = '';
+    
+    // Scroll to bottom
+    messagesList.scrollTop = messagesList.scrollHeight;
+    
+    // Add typing indicator
+    const typingIndicator = document.createElement('li');
+    typingIndicator.classList.add('message', 'received', 'typing');
+    typingIndicator.innerHTML = `
+      <div class="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    `;
+    messagesList.appendChild(typingIndicator);
+    messagesList.scrollTop = messagesList.scrollHeight;
+
+    // Send request to server
+    fetch("{% url 'chatbot' %}", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: new URLSearchParams({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Remove typing indicator
+      messagesList.removeChild(typingIndicator);
+      
+      // Add bot response with animation
+      const botMessage = document.createElement('li');
+      botMessage.classList.add('message', 'received');
+      
+      if (data.response) {
+        botMessage.innerHTML = `<div class="message-text">${data.response}</div>`;
+      } else if (data.error) {
+        botMessage.innerHTML = `<div class="message-text">Sorry, there was an error: ${data.error}</div>`;
+      } else {
+        botMessage.innerHTML = `<div class="message-text">Sorry, I couldn't process your request.</div>`;
+      }
+      
+      messagesList.appendChild(botMessage);
+      messagesList.scrollTop = messagesList.scrollHeight;
+    })
+    .catch(error => {
+      // Remove typing indicator
+      messagesList.removeChild(typingIndicator);
+      
+      // Add error message
+      const errorMessage = document.createElement('li');
+      errorMessage.classList.add('message', 'received');
+      errorMessage.innerHTML = `<div class="message-text">Sorry, there was an error: ${error.message}</div>`;
+      messagesList.appendChild(errorMessage);
+      messagesList.scrollTop = messagesList.scrollHeight;
+      
+      console.error('Error:', error);
+    });
+  });
+
+  // Auto-resize input field as user types
+  messageInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = (this.scrollHeight) + 'px';
+  });
+
+  // Initialize - if there are messages, scroll to bottom
+  document.addEventListener('DOMContentLoaded', function() {
+    messagesList.scrollTop = messagesList.scrollHeight;
+  });
+</script>
+{% endblock %}

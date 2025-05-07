@@ -1,13 +1,13 @@
 from django.urls import path
-from .views import *
+from . import views
 
 app_name = 'settings'
 
 urlpatterns = [
-    path('', home , name='home'),
-    path('search/', home_search , name='home_search'),
-    path('contact-us/', contact_us , name='contact_us'),
-    path('category/<slug:category>', category_filter , name='category_filter'),
-
-
+    path('', views.home, name='home'),
+    path('search/', views.home_search, name='home_search'),
+    path('contact-us/', views.contact_us, name='contact_us'),
+    path('contact-submit/', views.contact_submit, name='contact_submit'),
+    path('category/<slug:category>', views.category_filter, name='category_filter'),
+    path('chatbot/', views.chatbot, name='chatbot'),
 ]

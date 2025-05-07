@@ -27,12 +27,10 @@
           		<div class="col-md-12 ftco-animate">
           			<div class="single-slider owl-carousel">
 
-						{% for image in object.property_image.all  %}
-
+						{% for image in object.property_image.all %}
           				<div class="item">
           					<div class="hotel-img" style="background-image: url('{{image.image.url}}');"></div>
           				</div>
-
           				{% endfor %}
 
           			</div>
@@ -156,7 +154,7 @@
           		</div>
           		<div class="col-md-12 hotel-single ftco-animate mb-5 mt-4">
           			<h4 class="mb-5">Check Availability &amp; Booking</h4>
-          			<form action="/url/to/submit/" method="post" class="form">
+          			<form action="/url/to/submit/" method="post" class="form booking-form">
 						{% csrf_token %}
 						{% bootstrap_form form %}
 						{% buttons %}
@@ -251,6 +249,38 @@
         </div>
       </div>
     </section> <!-- .section -->
+
+    <!-- Add this button somewhere prominent on your page -->
+    <button class="btn btn-primary scroll-to-booking">Book Now</button>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Auto-scroll on page load
+        const bookingForm = document.querySelector('.booking-form');
+        
+        if (bookingForm) {
+          setTimeout(function() {
+            bookingForm.scrollIntoView({ 
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }, 500);
+        }
+        
+        // Add click event for the button
+        const scrollButtons = document.querySelectorAll('.scroll-to-booking');
+        scrollButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            if (bookingForm) {
+              bookingForm.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }
+          });
+        });
+      });
+    </script>
 
   
     {% endblock body %}
